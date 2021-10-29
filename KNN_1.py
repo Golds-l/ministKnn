@@ -37,5 +37,5 @@ if __name__ == "__main__":
             distanceAndLbl = [distance, trLbl, trImg.copy()] if distance < distanceAndLbl[0] else [distanceAndLbl[0], distanceAndLbl[1], distanceAndLbl[2]]
         if distanceAndLbl[1] == lbl:
             num += 1
-    print(num / testImg[0])
+    print(num / testImg.shape[0])
 
