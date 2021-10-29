@@ -6,9 +6,21 @@ import cv2
 
 
 class Dataset:
+
     def __init__(self, imageFilePath, labelLabelPath):
-        self.imgPt = imageFilePath
-        self.lblPt = labelLabelPath
+        self.images = open(imageFilePath, "rb")
+        self.labels = open(labelLabelPath, "rb")
+        self.imgMagicNumber, self.imgNums = struct.unpack(">ii", self.images.read(8))
+        self.imgWidth, self.imgHeight = struct.unpack(">ii", self.images.read(8))
+        self.lblMagicNumber, self.lblNums = struct.unpack(">ii", self.labels.read(8))
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        image = [[struct.unpack(">B", self.images.read(1))[0] for j in range(0, 28)] for i in range(0, 28)]
+        label = struct.unpack(">B", self.labels.read(1))
+        return image, label
 
     @staticmethod
     def readMinistImages(filePath):
@@ -39,10 +51,12 @@ class TestIter:
 
 
 if __name__ == "__main__":
-    test = TestIter(5)
-    for i in test:
-        print(i)
-        time.sleep(1)
+    pass
+    # dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
+    # for img, lbl in dataset:
+    #     image = np.array(img, dtype=np.uint8)
+    #     cv2.imshow(str(lbl[0]), cv2.resize(image, (400, 400)))
+    #     cv2.waitKey(800)
     # trainDataset = readMinistImages("./ministData/train-images.idx3-ubyte")
     # testDataset = readMinistLabel()
     # for i in readMinistImages("./ministData/train-images.idx3-ubyte"):
