@@ -1,7 +1,7 @@
 import struct
 from threading import Thread
 import time
-from multiprocessing import Pool, Process
+from multiprocessing import Pool, Process, Queue
 import os
 
 import numpy as np
@@ -28,7 +28,7 @@ def calculateDistance(imgI, imgII):
     return np.sum(imgII - imgI)
 
 
-def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex):
+def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex, que):
     print(os.getpid())
     num = 0
     for img, lbl in zip(testImage[beginIndex:endIndex], testLabel[beginIndex:endIndex]):
@@ -40,24 +40,26 @@ def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex):
                                                                                                    distanceAndLbl[2]]
         if distanceAndLbl[1] == lbl:
             num += 1
-    print(num / (endIndex - beginIndex))
+    que.put(num)
     return num / (endIndex - beginIndex)
 
 
-def mulProcessTest(numOfProcess):
+def mulProcessTest(numOfProcess, que):
     size = int(10000 / numOfProcess)
     process = []
     for i in range(numOfProcess):
-        process.append(Process(target=test, args=(testImg, testLbl, trainImg, trainLbl, i * size, i * size + size)))
+        process.append(Process(target=test, args=(testImg, testLbl, trainImg, trainLbl, i * size, i * size + size, que)))
     [p.start() for p in process]
     [p.join() for p in process]
 
 
 if __name__ == "__main__":
+    NUM_OF_PROCESS = 28
+    nums = Queue(NUM_OF_PROCESS)
     timeBegin = time.time()
     trainImg = readMinistImages("./ministData/train-images.idx3-ubyte")
     testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
     trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
     testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
-    mulProcessTest(8)
-    print(time.time() - timeBegin)
+    mulProcessTest(NUM_OF_PROCESS, nums)
+    print(f"time:{round(time.time() - timeBegin, 2)}\taccuracy:{sum(nums.get() for i in range(NUM_OF_PROCESS))/10000}")
