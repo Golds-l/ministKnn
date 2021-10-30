@@ -39,7 +39,8 @@ class Dataset:
 
 
 if __name__ == "__main__":
-    dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
+    pass
+    # dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
     # for img, lbl in dataset:
     #     image = np.array(img, dtype=np.uint8)
     #     cv2.imshow(str(lbl[0]), cv2.resize(image, (400, 400)))

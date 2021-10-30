@@ -1,12 +1,8 @@
 import struct
-from threading import Thread
 import time
-from multiprocessing import Pool, Process, Queue
-import os
+from multiprocessing import Process, Queue
 
 import numpy as np
-import cv2
-from tqdm import tqdm
 
 
 def readMinistLabel(filePath):
@@ -29,7 +25,6 @@ def calculateDistance(imgI, imgII):
 
 
 def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex, que):
-    print(os.getpid())
     num = 0
     for img, lbl in zip(testImage[beginIndex:endIndex], testLabel[beginIndex:endIndex]):
         distanceAndLbl = [float('inf'), 0, 0]
@@ -62,4 +57,4 @@ if __name__ == "__main__":
     trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
     testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
     mulProcessTest(NUM_OF_PROCESS, nums)
-    print(f"time:{round(time.time() - timeBegin, 2)}\taccuracy:{sum(nums.get() for i in range(NUM_OF_PROCESS))/10000}")
+    print(f"time:{round(time.time() - timeBegin, 2)}s\taccuracy:{sum(nums.get() for i in range(NUM_OF_PROCESS))/10000}")
