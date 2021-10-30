@@ -38,25 +38,12 @@ class Dataset:
         return labels
 
 
-class TestIter:
-    def __init__(self, i):
-        self.i = i
-
-    def __next__(self):
-        self.i += 1
-        return self.i
-
-    def __iter__(self):
-        return self
-
-
 if __name__ == "__main__":
-    pass
-    # dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
+    dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
     # for img, lbl in dataset:
     #     image = np.array(img, dtype=np.uint8)
     #     cv2.imshow(str(lbl[0]), cv2.resize(image, (400, 400)))
-    #     cv2.waitKey(800)
+    #     cv2.waitKey(80)
     # trainDataset = readMinistImages("./ministData/train-images.idx3-ubyte")
     # testDataset = readMinistLabel()
     # for i in readMinistImages("./ministData/train-images.idx3-ubyte"):

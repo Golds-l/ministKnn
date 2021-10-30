@@ -1,5 +1,6 @@
 import struct
 from threading import Thread
+import time
 
 import numpy as np
 import cv2
@@ -25,11 +26,11 @@ def calculateDistance(imgI, imgII):
     return np.sum(imgII - imgI)
 
 
-def train(testImage, testLabel, trainImage, trainLabel):
+def test(testImage, testLabel, trainImage, trainLabel):
     num = 0
     for img, lbl in zip(testImage, testLabel):
         distanceAndLbl = [float('inf'), 0, 0]
-        for trImg, trLbl in tqdm(zip(trainImage, trainLabel)):
+        for trImg, trLbl in zip(trainImage, trainLabel):
             distance = calculateDistance(img, trImg)
             distanceAndLbl = [distance, trLbl, trImg.copy()] if distance < distanceAndLbl[0] else [distanceAndLbl[0],
                                                                                                    distanceAndLbl[1],
@@ -44,4 +45,4 @@ if __name__ == "__main__":
     testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
     trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
     testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
-    print(train(testImg[:10], testLbl[:10], trainImg, trainLbl))
+    print(test(testImg[:10], testLbl[:10], trainImg, trainLbl))
