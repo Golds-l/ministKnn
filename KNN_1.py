@@ -1,6 +1,8 @@
 import struct
 from threading import Thread
 import time
+from multiprocessing import Pool, Process
+import os
 
 import numpy as np
 import cv2
@@ -26,9 +28,10 @@ def calculateDistance(imgI, imgII):
     return np.sum(imgII - imgI)
 
 
-def test(testImage, testLabel, trainImage, trainLabel):
+def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex):
+    print(os.getpid())
     num = 0
-    for img, lbl in zip(testImage, testLabel):
+    for img, lbl in zip(testImage[beginIndex:endIndex], testLabel[beginIndex:endIndex]):
         distanceAndLbl = [float('inf'), 0, 0]
         for trImg, trLbl in zip(trainImage, trainLabel):
             distance = calculateDistance(img, trImg)
@@ -37,12 +40,24 @@ def test(testImage, testLabel, trainImage, trainLabel):
                                                                                                    distanceAndLbl[2]]
         if distanceAndLbl[1] == lbl:
             num += 1
-    return num
+    print(num / (endIndex - beginIndex))
+    return num / (endIndex - beginIndex)
+
+
+def mulProcessTest(numOfProcess):
+    size = int(10000 / numOfProcess)
+    process = []
+    for i in range(numOfProcess):
+        process.append(Process(target=test, args=(testImg, testLbl, trainImg, trainLbl, i * size, i * size + size)))
+    [p.start() for p in process]
+    [p.join() for p in process]
 
 
 if __name__ == "__main__":
+    timeBegin = time.time()
     trainImg = readMinistImages("./ministData/train-images.idx3-ubyte")
     testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
     trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
     testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
-    print(test(testImg[:10], testLbl[:10], trainImg, trainLbl))
+    mulProcessTest(8)
+    print(time.time() - timeBegin)
