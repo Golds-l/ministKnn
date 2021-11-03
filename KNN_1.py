@@ -1,6 +1,7 @@
 import struct
 import time
 from multiprocessing import Process, Queue, Value
+
 import numpy as np
 import cv2
 
@@ -24,37 +25,49 @@ def calculateDistance(imgI, imgII):
     return np.sum(cv2.absdiff(imgI, imgII))
 
 
-def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex, que):
+def test(testImages, testLabels, trainImages, trainLabels, beginIndex, endIndex, val):
     num = 0
-    for img, lbl in zip(testImage[beginIndex:endIndex], testLabel[beginIndex:endIndex]):
+    for img, lbl in zip(testImages[beginIndex:endIndex], testLabels[beginIndex:endIndex]):
         distanceAndLbl = [float('inf'), 0, 0]
-        for trImg, trLbl in zip(trainImage, trainLabel):
+        for trImg, trLbl in zip(trainImages, trainLabels):
             distance = calculateDistance(img, trImg)
             distanceAndLbl = [distance, trLbl, trImg.copy()] if distance < distanceAndLbl[0] else [distanceAndLbl[0],
                                                                                                    distanceAndLbl[1],
                                                                                                    distanceAndLbl[2]]
         if distanceAndLbl[1] == lbl:
             num += 1
-    que.put(num)
+    val.value += num
     return num / (endIndex - beginIndex)
 
 
-def mulProcessTest(numOfProcess, que):
+def validation(image, trainImages, trainLabels):
+    distanceAndLbl = [float('inf'), None, None]
+    for trImg, trLbl in zip(trainImages, trainLabels):
+        distance = calculateDistance(image, trImg)
+        distanceAndLbl = [distance, trLbl, trImg.copy()] if distance < distanceAndLbl[0] else [distanceAndLbl[0],
+                                                                                               distanceAndLbl[1],
+                                                                                               distanceAndLbl[2]]
+    return distanceAndLbl
+
+
+def mulProcessTest(numOfProcess, val):
     size = int(10000 / numOfProcess)
     process = []
     for i in range(numOfProcess):
-        process.append(Process(target=test, args=(testImg, testLbl, trainImg, trainLbl, i * size, i * size + size, que)))
+        process.append(
+            Process(target=test, args=(testImg, testLbl, trainImg, trainLbl, i * size, i * size + size, val)))
     [p.start() for p in process]
     [p.join() for p in process]
 
 
 if __name__ == "__main__":
-    NUM_OF_PROCESS = 1
-    nums = Queue(NUM_OF_PROCESS + 2)
-    timeBegin = time.time()
+    NUM_OF_PROCESS = 28
+    numOfMismatch = 0
+    numOfRight = Value("d", 0.0)
     trainImg = readMinistImages("./ministData/train-images.idx3-ubyte")
     testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
     trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
     testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
-    mulProcessTest(NUM_OF_PROCESS, nums)
-    print(f"time:{round(time.time() - timeBegin, 2)}s\taccuracy:{sum(nums.get() for i in range(NUM_OF_PROCESS))/10000}")
+    timeBegin = time.time()
+    mulProcessTest(NUM_OF_PROCESS, numOfRight)
+    print(f"time: {round(time.time() - timeBegin, 2)}s\tnums of right: {numOfRight.value} accuracy: {numOfRight.value / 10000}")
