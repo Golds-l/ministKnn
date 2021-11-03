@@ -1,8 +1,8 @@
 import struct
 import time
-from multiprocessing import Process, Queue
-
+from multiprocessing import Process, Queue, Value
 import numpy as np
+import cv2
 
 
 def readMinistLabel(filePath):
@@ -21,7 +21,7 @@ def readMinistImages(filePath):
 
 
 def calculateDistance(imgI, imgII):
-    return np.sum(imgII - imgI)
+    return np.sum(cv2.absdiff(imgI, imgII))
 
 
 def test(testImage, testLabel, trainImage, trainLabel, beginIndex, endIndex, que):
@@ -49,8 +49,8 @@ def mulProcessTest(numOfProcess, que):
 
 
 if __name__ == "__main__":
-    NUM_OF_PROCESS = 28
-    nums = Queue(NUM_OF_PROCESS)
+    NUM_OF_PROCESS = 1
+    nums = Queue(NUM_OF_PROCESS + 2)
     timeBegin = time.time()
     trainImg = readMinistImages("./ministData/train-images.idx3-ubyte")
     testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
