@@ -59,12 +59,13 @@ def train(net, optimizer, dataloader):
 
 
 if __name__ == "__main__":
-    wandb.init("LeNet")
+    wandb.init(project="LeNet")
     wandb.config = {
         "learning_rate": LR,
         "epochs": EPOCH,
         "batch_size": BATCH_SIZE
     }
+    modelLoss = float("inf")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
     datasetMNIST = torchvision.datasets.MNIST(root="./ministData", train=True, download=True, transform=transforms)
@@ -75,5 +76,10 @@ if __name__ == "__main__":
         lossEpoch = train(network, opt, dataloaderMNIST)
         wandb.log({"loss": lossEpoch})
         wandb.watch(network)
+        if lossEpoch < modelLoss:
+            modelLoss = lossEpoch
+            torch.save(network.state_dict(), "./models/best.pt")
+            print(f"epoch:{i}  loss:{lossEpoch}  model saved")
+            continue
         print(f"epoch:{i}  loss:{lossEpoch}")
 
