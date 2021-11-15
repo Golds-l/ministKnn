@@ -25,7 +25,7 @@ def calculateDistance(imgI, imgII):
     return np.sum(cv2.absdiff(imgI, imgII))
 
 
-def test(testImages, testLabels, trainImages, trainLabels, beginIndex, endIndex, val):
+def test(testImages, testLabels, trainImages, trainLabels, beginIndex, endIndex, val):  # 测试
     num = 0
     for img, lbl in zip(testImages[beginIndex:endIndex], testLabels[beginIndex:endIndex]):
         distanceAndLbl = [float('inf'), 0, 0]
@@ -50,7 +50,7 @@ def validation(image, trainImages, trainLabels):
     return distanceAndLbl
 
 
-def mulProcessTest(numOfProcess, val):
+def mulProcessTest(numOfProcess, val):  # 加快速度采用多进程,暂时不管
     size = int(10000 / numOfProcess)
     process = []
     for i in range(numOfProcess):
