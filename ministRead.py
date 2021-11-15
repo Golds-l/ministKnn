@@ -1,11 +1,9 @@
 import struct
-import time
 
 import numpy as np
-import cv2
 
 
-class Dataset:
+class READ:
 
     def __init__(self, imageFilePath, labelLabelPath):
         self.images = open(imageFilePath, "rb")
@@ -13,14 +11,19 @@ class Dataset:
         self.imgMagicNumber, self.imgNums = struct.unpack(">ii", self.images.read(8))
         self.imgWidth, self.imgHeight = struct.unpack(">ii", self.images.read(8))
         self.lblMagicNumber, self.lblNums = struct.unpack(">ii", self.labels.read(8))
+        self.iterNums = self.imgNums
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        image = [[struct.unpack(">B", self.images.read(1))[0] for j in range(0, 28)] for i in range(0, 28)]
-        label = struct.unpack(">B", self.labels.read(1))
-        return image, label
+        self.iterNums -= 1
+        if self.iterNums > 0:
+            image = [[struct.unpack(">B", self.images.read(1))[0] for j in range(0, 28)] for i in range(0, 28)]
+            label = struct.unpack(">B", self.labels.read(1))
+            return image, label
+        else:
+            raise StopIteration()
 
     @staticmethod
     def readMinistImages(filePath):

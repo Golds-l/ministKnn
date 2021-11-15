@@ -1,20 +1,35 @@
 import torch
-from torch.utils.data import DataLoader
 from torchvision import transforms
 from PIL import Image
 import time
 
 from LeNet import LeNet
+from ministRead import READ
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+NETWORK = LeNet().to(DEVICE)
+NETWORK.load_state_dict(torch.load("./models/best.pt"))
+
+
+def singlePred(imgPath):
+    transform = transforms.ToTensor()
+    image = transform(Image.open(imgPath)).to(DEVICE)
+    imageTensor = torch.unsqueeze(image, dim=0)
+    output = NETWORK(imageTensor)
+    return torch.argmax(output).item()
+
 
 if __name__ == "__main__":
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    network = LeNet().to(device)
-    network.load_state_dict(torch.load("./models/best.pt"))
-
-    transform = transforms.ToTensor()
-    img = transform(Image.open("./images/9.png")).to(device)
-    img = torch.unsqueeze(img, dim=0)
-
+    # print(singlePred("images/0.png"))
+    mnist = READ("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
     tB = time.time()
-    out = network(img)
-    print(torch.argmax(out).item(), time.time() - tB)
+    NUM_OF_RIGHT = 0
+    for img, lbl in mnist:
+        imgTensor = torch.unsqueeze(torch.unsqueeze(torch.tensor(img, dtype=torch.float32).to(DEVICE), dim=0), dim=0)
+        out = NETWORK(imgTensor)
+        pred = torch.argmax(out).item()
+        if lbl[0] == pred:
+            NUM_OF_RIGHT += 1
+        # print("true" if lbl[0] == pred else "false")
+    print(time.time() - tB, NUM_OF_RIGHT)
+    print(f"num of right:{NUM_OF_RIGHT}  time:{time.time() - tB} accuracy:{NUM_OF_RIGHT/mnist.imgNums}")
