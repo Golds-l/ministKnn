@@ -1,3 +1,5 @@
+import time
+
 import torch
 import torch.nn as nn
 from torch.nn import functional as F
@@ -77,12 +79,13 @@ if __name__ == "__main__":
     network = FCNN().to(device)
     opt = optim.SGD(network.parameters(), lr=LR)
     for i in range(EPOCH):
+        tE = time.time()
         lossEpoch = train(network, opt, dataloaderMNIST)
         wandb.log({"loss": lossEpoch})
         wandb.watch(network)
         if lossEpoch < modelLoss:
             modelLoss = lossEpoch
             torch.save(network.state_dict(), "./models/FCNN/best.pt")
-            print(f"epoch:{i}  loss:{lossEpoch}  model saved!")
+            print(f"epoch:{i}  loss:{lossEpoch} time:{time.time() - tE}s model saved!")
             continue
-        print(f"epoch:{i}  loss:{lossEpoch}")
+        print(f"epoch:{i}  loss:{lossEpoch} time:{time.time() - tE}s")
