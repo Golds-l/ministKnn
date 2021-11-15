@@ -8,7 +8,7 @@ from ministRead import READ
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 NETWORK = LeNet().to(DEVICE)
-NETWORK.load_state_dict(torch.load("./models/best.pt"))
+NETWORK.load_state_dict(torch.load("./models/LeNet/best.pt"))
 
 
 def singlePred(imgPath):
