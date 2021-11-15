@@ -43,18 +43,18 @@ class READ:
 
 if __name__ == "__main__":
     pass
-    # dataset = Dataset("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
+    # dataset = Dataset("mnistData/t10k-images.idx3-ubyte", "mnistData/t10k-labels.idx1-ubyte")
     # for img, lbl in dataset:
     #     image = np.array(img, dtype=np.uint8)
     #     cv2.imshow(str(lbl[0]), cv2.resize(image, (400, 400)))
     #     cv2.waitKey(80)
-    # trainDataset = readMinistImages("./ministData/train-images.idx3-ubyte")
+    # trainDataset = readMinistImages("./mnistData/train-images.idx3-ubyte")
     # testDataset = readMinistLabel()
-    # for i in readMinistImages("./ministData/train-images.idx3-ubyte"):
+    # for i in readMinistImages("./mnistData/train-images.idx3-ubyte"):
     #     cv2.imshow("test", i)
     #     cv2.waitKey(40)
-    # for label, image in zip(readMinistLabel("ministData/t10k-labels.idx1-ubyte"), readMinistImages(
-    #         "ministData/t10k-images.idx3-ubyte")):
+    # for label, image in zip(readMinistLabel("mnistData/t10k-labels.idx1-ubyte"), readMinistImages(
+    #         "mnistData/t10k-images.idx3-ubyte")):
     #     print(label)
     #     cv2.imwrite(f"./images/{label}.png", image)
     #     cv2.imshow("image", image)

@@ -68,7 +68,7 @@ if __name__ == "__main__":
     modelLoss = float("inf")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
-    datasetMNIST = torchvision.datasets.MNIST(root="./ministData", train=True, download=True, transform=transforms)
+    datasetMNIST = torchvision.datasets.MNIST(root="./mnistData", train=True, download=True, transform=transforms)
     dataloaderMNIST = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
     network = LeNet().to(device)
     opt = optim.SGD(network.parameters(), lr=LR)

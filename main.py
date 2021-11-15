@@ -21,7 +21,7 @@ def singlePred(imgPath):
 
 if __name__ == "__main__":
     # print(singlePred("images/0.png"))
-    mnist = READ("ministData/t10k-images.idx3-ubyte", "ministData/t10k-labels.idx1-ubyte")
+    mnist = READ("mnistData/t10k-images.idx3-ubyte", "mnistData/t10k-labels.idx1-ubyte")
     tB = time.time()
     NUM_OF_RIGHT = 0
     for img, lbl in mnist:

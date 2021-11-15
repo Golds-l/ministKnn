@@ -64,10 +64,10 @@ if __name__ == "__main__":
     NUM_OF_PROCESS = 28
     numOfMismatch = 0
     numOfRight = Value("d", 0.0)
-    trainImg = readMinistImages("./ministData/train-images.idx3-ubyte")
-    testImg = readMinistImages("./ministData/t10k-images.idx3-ubyte")
-    trainLbl = readMinistLabel("./ministData/train-labels.idx1-ubyte")
-    testLbl = readMinistLabel("./ministData/t10k-labels.idx1-ubyte")
+    trainImg = readMinistImages("mnistData/train-images.idx3-ubyte")
+    testImg = readMinistImages("mnistData/t10k-images.idx3-ubyte")
+    trainLbl = readMinistLabel("mnistData/train-labels.idx1-ubyte")
+    testLbl = readMinistLabel("mnistData/t10k-labels.idx1-ubyte")
     timeBegin = time.time()
     mulProcessTest(NUM_OF_PROCESS, numOfRight)
     print(f"time: {round(time.time() - timeBegin, 2)}s\tnums of right: {numOfRight.value} accuracy: {numOfRight.value / 10000}")
