@@ -79,7 +79,7 @@ if __name__ == "__main__":
         if lossEpoch < modelLoss:
             modelLoss = lossEpoch
             torch.save(network.state_dict(), "./models/best.pt")
-            print(f"epoch:{i}  loss:{lossEpoch}  model saved")
+            print(f"epoch:{i}  loss:{lossEpoch}  model saved!")
             continue
         print(f"epoch:{i}  loss:{lossEpoch}")
 
