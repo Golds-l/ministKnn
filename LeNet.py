@@ -5,7 +5,11 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import torchvision
 
-import numpy as np
+import wandb
+
+EPOCH = 20
+LR = 0.0004
+BATCH_SIZE = 8
 
 
 class LeNet(nn.Module):
@@ -51,16 +55,25 @@ def train(net, optimizer, dataloader):
         loss.backward()
         optimizer.step()
 
-    return sum(losses)/len(losses)
+    return sum(losses) / len(losses)
 
 
 if __name__ == "__main__":
+    wandb.init("LeNet")
+    wandb.config = {
+        "learning_rate": LR,
+        "epochs": EPOCH,
+        "batch_size": BATCH_SIZE
+    }
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
     datasetMNIST = torchvision.datasets.MNIST(root="./ministData", train=True, download=True, transform=transforms)
-    dataloaderMNIST = DataLoader(datasetMNIST, shuffle=True, batch_size=8)
-    net = LeNet().to(device)
-    optimizer = optim.SGD(net.parameters(), lr=0.0001)
-    for i in range(5):
-        loss = train(net, optimizer, dataloaderMNIST)
-        print(f"epoch:{i}\tloss:{loss}")
+    dataloaderMNIST = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
+    network = LeNet().to(device)
+    opt = optim.SGD(network.parameters(), lr=LR)
+    for i in range(EPOCH):
+        lossEpoch = train(network, opt, dataloaderMNIST)
+        wandb.log({"loss": lossEpoch})
+        wandb.watch(network)
+        print(f"epoch:{i}  loss:{lossEpoch}")
+
