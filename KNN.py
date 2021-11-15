@@ -4,6 +4,7 @@ from multiprocessing import Process, Queue, Value
 
 import numpy as np
 import cv2
+from tqdm import tqdm
 
 
 def readMinistLabel(filePath):
@@ -29,7 +30,7 @@ def test(testImages, testLabels, trainImages, trainLabels, beginIndex, endIndex,
     num = 0
     for img, lbl in zip(testImages[beginIndex:endIndex], testLabels[beginIndex:endIndex]):
         distanceAndLbl = [float('inf'), 0, 0]
-        for trImg, trLbl in zip(trainImages, trainLabels):
+        for trImg, trLbl in tqdm(zip(trainImages, trainLabels)):
             distance = calculateDistance(img, trImg)
             distanceAndLbl = [distance, trLbl, trImg.copy()] if distance < distanceAndLbl[0] else [distanceAndLbl[0],
                                                                                                    distanceAndLbl[1],
@@ -70,4 +71,5 @@ if __name__ == "__main__":
     testLbl = readMinistLabel("mnistData/t10k-labels.idx1-ubyte")
     timeBegin = time.time()
     mulProcessTest(NUM_OF_PROCESS, numOfRight)
+    # test(testImg, testLbl, trainImg, trainLbl, 0, -1, numOfRight)
     print(f"time: {round(time.time() - timeBegin, 2)}s\tnums of right: {numOfRight.value} accuracy: {numOfRight.value / 10000}")

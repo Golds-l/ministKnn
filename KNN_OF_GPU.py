@@ -1,10 +1,10 @@
+# slowly!!!!!
 import time
 from tqdm import tqdm
 
 import torch
 from torch.utils.data import DataLoader
 import torchvision
-
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -29,4 +29,3 @@ if __name__ == "__main__":
         if pred == label:
             NUM_OF_RIGHT += 1
     print(f"num of right:{NUM_OF_RIGHT} time:{time.time() - tB}")
-
