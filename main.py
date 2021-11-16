@@ -4,11 +4,14 @@ from PIL import Image
 import time
 
 from LeNet import LeNet
+from FCNN import FCNN
 from ministRead import READ
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-NETWORK = LeNet().to(DEVICE)
-NETWORK.load_state_dict(torch.load("./models/LeNet/best.pt"))
+# NETWORK = LeNet().to(DEVICE)
+# NETWORK.load_state_dict(torch.load("./models/best.pt"))
+NETWORK = FCNN().to(DEVICE)
+NETWORK.load_state_dict(torch.load("./models/FCNN/best.pt"))
 
 
 def singlePred(imgPath):
@@ -31,5 +34,4 @@ if __name__ == "__main__":
         if lbl[0] == pred:
             NUM_OF_RIGHT += 1
         # print("true" if lbl[0] == pred else "false")
-    print(time.time() - tB, NUM_OF_RIGHT)
-    print(f"num of right:{NUM_OF_RIGHT}  time:{time.time() - tB} accuracy:{NUM_OF_RIGHT/mnist.imgNums}")
+    print(f"num of right:{NUM_OF_RIGHT}  time:{time.time() - tB}s accuracy:{NUM_OF_RIGHT/mnist.imgNums}")
