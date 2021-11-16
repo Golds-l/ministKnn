@@ -8,10 +8,10 @@ from FCNN import FCNN
 from ministRead import READ
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# NETWORK = LeNet().to(DEVICE)
-# NETWORK.load_state_dict(torch.load("./models/best.pt"))
-NETWORK = FCNN().to(DEVICE)
-NETWORK.load_state_dict(torch.load("./models/FCNN/best.pt"))
+NETWORK = LeNet().to(DEVICE)
+NETWORK.load_state_dict(torch.load("./models/LeNet/best.pt"))
+# NETWORK = FCNN().to(DEVICE)
+# NETWORK.load_state_dict(torch.load("./models/FCNN/best.pt"))
 
 
 def singlePred(imgPath):

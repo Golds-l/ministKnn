@@ -9,9 +9,9 @@ import torchvision
 
 import wandb
 
-EPOCH = 20
-LR = 0.0004
-BATCH_SIZE = 8
+EPOCH = 200
+LR = 0.004
+BATCH_SIZE = 512
 
 
 class FCNN(nn.Module):
@@ -45,7 +45,7 @@ class FCNN(nn.Module):
         x = self.FC3(x)
         x = self.FC4(x)
         x = self.FC5(x)
-        x = F.log_softmax(x, dim=1)
+        x = F.softmax(x, dim=1)
         return x
 
 
@@ -56,7 +56,7 @@ def train(net, optimizer, dataloader):
         input, label = input.cuda(), label.cuda()
         optimizer.zero_grad()
         output = net(input)
-        loss = F.nll_loss(output, label)
+        loss = F.cross_entropy(output, label)
         losses.append(round(loss.item(), 5))
         loss.backward()
         optimizer.step()
@@ -66,21 +66,17 @@ def train(net, optimizer, dataloader):
 def validation(net, dataloader):
     net.eval()
     losses = []
-    for idx, (input, label) in enumerate(dataloader):
-        input, label = input.cuda(), label.cuda()
-        output = net(input)
-        loss = F.nll_loss(output, label)
-        losses.append(round(loss.item(), 5))
+    with torch.no_grad():
+        for idx, (input, label) in enumerate(dataloader):
+            input, label = input.cuda(), label.cuda()
+            output = net(input)
+            loss = F.cross_entropy(output, label)
+            losses.append(round(loss.item(), 5))
     return sum(losses) / len(losses)
 
 
 if __name__ == "__main__":
-    wandb.init(project="FCNN")
-    wandb.config = {
-        "learning_rate": LR,
-        "epochs": EPOCH,
-        "batch_size": BATCH_SIZE
-    }
+    wandb.init(project="FCNN", config={"epochs": EPOCH, "batch_size": BATCH_SIZE, "lr": LR})
     modelLoss = float("inf")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
@@ -95,7 +91,7 @@ if __name__ == "__main__":
         tE = time.time()
         trainLoss = train(network, opt, dataloaderMNIST)
         wandb.log({"train loss": trainLoss})
-        if i % 10 == 0:
+        if i % 5 == 0:
             valLoss = validation(network, valDataloader)
             wandb.log({"val loss": valLoss})
             if valLoss < modelLoss:
