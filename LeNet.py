@@ -31,11 +31,11 @@ class LeNet(nn.Module):
             nn.ReLU()
         )
         self.FC = nn.Sequential(
-            nn.Linear(in_features=256 * 1 * 1, out_features=128 * 1 * 1),
+            nn.Linear(in_features=256 * 1 * 1, out_features=128),
             nn.ReLU(),
-            nn.Linear(in_features=128 * 1 * 1, out_features=64),
+            nn.Linear(in_features=128, out_features=64),
             nn.ReLU(),
-            nn.Linear(in_features=64 * 1 * 1, out_features=10),
+            nn.Linear(in_features=64, out_features=10),
         )
 
     def forward(self, x):
@@ -102,7 +102,7 @@ if __name__ == "__main__":
         wandb.log({"loss": trainLoss})
         if i % 5 == 0:
             valLoss, accCount = validation(network, valDataloader)
-            wandb.log({"val loss": valLoss})
+            wandb.log({"val loss": valLoss, "accuracy": accCount/10000})
             if valLoss < modelLoss:
                 modelLoss = valLoss
                 torch.save(network.state_dict(), "./models/LeNet/best.pt")
