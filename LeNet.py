@@ -17,12 +17,12 @@ class LeNet(nn.Module):
     def __init__(self):
         super(LeNet, self).__init__()
         self.Conv1 = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=6, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=(3, 3), stride=(1, 1)),
             nn.MaxPool2d(kernel_size=(2, 2)),
             nn.ReLU()
         )
         self.Conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=6, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
             nn.MaxPool2d(kernel_size=(2, 2)),
             nn.ReLU()
         )
@@ -70,10 +70,18 @@ def validation(net, dataloader):
         for idx, (input, label) in enumerate(dataloader):
             input, label = input.cuda(), label.cuda()
             output = net(input)
+            accNum += calAccuracy(label, output)
             loss = F.cross_entropy(output, label)
             losses.append(round(loss.item(), 5))
+        return sum(losses) / len(losses), accNum
 
-        return sum(losses) / len(losses)
+
+def calAccuracy(label, output):
+    num = 0
+    for pred, lbl in zip(output, label):
+        if torch.argmax(pred) == lbl:
+            num += 1
+    return num
 
 
 if __name__ == "__main__":
@@ -84,7 +92,7 @@ if __name__ == "__main__":
     datasetMNIST = torchvision.datasets.MNIST(root="./mnistData", train=True, download=True, transform=transforms)
     dataloaderMNIST = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
     valDataset = torchvision.datasets.MNIST(root="./mnistData", train=False, download=True, transform=transforms)
-    valDataloader = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
+    valDataloader = DataLoader(valDataset, shuffle=True, batch_size=BATCH_SIZE)
     network = LeNet().to(device)
     opt = optim.Adam(network.parameters(), lr=LR)
     for i in range(EPOCH):
@@ -93,13 +101,13 @@ if __name__ == "__main__":
         trainLoss = train(network, opt, dataloaderMNIST)
         wandb.log({"loss": trainLoss})
         if i % 5 == 0:
-            valLoss = validation(network, valDataloader)
+            valLoss, accCount = validation(network, valDataloader)
             wandb.log({"val loss": valLoss})
             if valLoss < modelLoss:
                 modelLoss = valLoss
                 torch.save(network.state_dict(), "./models/LeNet/best.pt")
-                print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} time:{time.time() - tE}s SAVED!")
+                print(f"epoch:{i} trainLoss:{trainLoss} valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s SAVED!")
                 continue
-            print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} time:{time.time() - tE}s")
+            print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s")
             continue
         print(f"epoch:{i}  loss:{trainLoss}")
