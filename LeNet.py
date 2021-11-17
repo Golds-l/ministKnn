@@ -44,8 +44,7 @@ class LeNet(nn.Module):
         x = self.Conv3(x)
         x = x.view(-1, 512)
         x = self.FC(x)
-        x = F.log_softmax(x, dim=1)
-        # x = F.softmax(x)
+        # x = F.log_softmax(x, dim=1)
         return x
 
 
