@@ -22,27 +22,29 @@ class LeNet(nn.Module):
             nn.ReLU()
         )
         self.Conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=6, out_channels=16, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(in_channels=6, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
             nn.MaxPool2d(kernel_size=(2, 2)),
             nn.ReLU()
         )
         self.Conv3 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=120, kernel_size=(5, 5), stride=(1, 1)),
+            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=(5, 5), stride=(1, 1)),
             nn.ReLU()
         )
         self.FC = nn.Sequential(
-            nn.Linear(in_features=120 * 1 * 1, out_features=84 * 1 * 1),
+            nn.Linear(in_features=256 * 1 * 1, out_features=128 * 1 * 1),
             nn.ReLU(),
-            nn.Linear(in_features=84 * 1 * 1, out_features=10)
+            nn.Linear(in_features=128 * 1 * 1, out_features=64),
+            nn.ReLU(),
+            nn.Linear(in_features=64 * 1 * 1, out_features=10),
         )
 
     def forward(self, x):
         x = self.Conv1(x)
         x = self.Conv2(x)
         x = self.Conv3(x)
-        x = x.view(-1, 120)
+        x = x.view(-1, 256)
         x = self.FC(x)
-        x = F.softmax(x)
+        x = F.log_softmax(x, dim=1)
         return x
 
 
@@ -63,12 +65,14 @@ def train(net, optimizer, dataloader):
 def validation(net, dataloader):
     net.eval()
     losses = []
+    accNum = 0
     with torch.no_grad():
         for idx, (input, label) in enumerate(dataloader):
             input, label = input.cuda(), label.cuda()
             output = net(input)
             loss = F.cross_entropy(output, label)
             losses.append(round(loss.item(), 5))
+
         return sum(losses) / len(losses)
 
 
