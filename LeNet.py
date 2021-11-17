@@ -22,16 +22,16 @@ class LeNet(nn.Module):
             nn.ReLU()
         )
         self.Conv2 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=(3, 3), stride=(1, 1)),
+            nn.Conv2d(in_channels=32, out_channels=128, kernel_size=(3, 3), stride=(1, 1)),
             nn.MaxPool2d(kernel_size=(2, 2)),
             nn.ReLU()
         )
         self.Conv3 = nn.Sequential(
-            nn.Conv2d(in_channels=64, out_channels=256, kernel_size=(5, 5), stride=(1, 1)),
+            nn.Conv2d(in_channels=128, out_channels=512, kernel_size=(5, 5), stride=(1, 1)),
             nn.ReLU()
         )
         self.FC = nn.Sequential(
-            nn.Linear(in_features=256 * 1 * 1, out_features=128),
+            nn.Linear(in_features=512 * 1 * 1, out_features=128),
             nn.ReLU(),
             nn.Linear(in_features=128, out_features=64),
             nn.ReLU(),
@@ -42,7 +42,7 @@ class LeNet(nn.Module):
         x = self.Conv1(x)
         x = self.Conv2(x)
         x = self.Conv3(x)
-        x = x.view(-1, 256)
+        x = x.view(-1, 512)
         x = self.FC(x)
         x = F.log_softmax(x, dim=1)
         # x = F.softmax(x)
