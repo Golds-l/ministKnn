@@ -11,7 +11,7 @@ import wandb
 from mnistRead import calAccuracy
 
 EPOCH = 200
-LR = 0.004
+LR = 0.007
 BATCH_SIZE = 512
 
 
@@ -77,7 +77,7 @@ if __name__ == "__main__":
     valDataset = torchvision.datasets.MNIST(root="./mnistData", train=False, download=True, transform=transforms)
     valDataloader = DataLoader(valDataset, shuffle=True, batch_size=BATCH_SIZE)
     network = FCNN().to(device)
-    opt = optim.SGD(network.parameters(), lr=LR)
+    opt = optim.Adam(network.parameters(), lr=LR)
     for i in range(EPOCH):
         wandb.watch(network)
         tE = time.time()
