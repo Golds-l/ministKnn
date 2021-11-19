@@ -1,6 +1,7 @@
 import struct
 
 import numpy as np
+import torch
 
 
 class READ:
@@ -39,6 +40,14 @@ class READ:
             magicNumber, sampleNums = struct.unpack(">ii", fp.read(8))
             labels = np.fromfile(fp, dtype=np.uint8)
         return labels
+
+
+def calAccuracy(label, output):
+    num = 0
+    for pred, lbl in zip(output, label):
+        if torch.argmax(pred) == lbl:
+            num += 1
+    return num
 
 
 if __name__ == "__main__":

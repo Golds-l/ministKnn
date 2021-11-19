@@ -5,7 +5,7 @@ import time
 
 from LeNet import LeNet
 from FCNN import FCNN
-from ministRead import READ
+from mnistRead import READ
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 NETWORK = LeNet().to(DEVICE)

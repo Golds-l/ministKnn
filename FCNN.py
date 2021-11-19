@@ -6,8 +6,9 @@ from torch.nn import functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import torchvision
-
 import wandb
+
+from mnistRead import calAccuracy
 
 EPOCH = 200
 LR = 0.004
@@ -66,13 +67,15 @@ def train(net, optimizer, dataloader):
 def validation(net, dataloader):
     net.eval()
     losses = []
+    accNum = 0
     with torch.no_grad():
         for idx, (input, label) in enumerate(dataloader):
             input, label = input.cuda(), label.cuda()
             output = net(input)
             loss = F.cross_entropy(output, label)
+            accNum += calAccuracy(label, output)
             losses.append(round(loss.item(), 5))
-    return sum(losses) / len(losses)
+    return sum(losses) / len(losses), accNum
 
 
 if __name__ == "__main__":
@@ -92,13 +95,13 @@ if __name__ == "__main__":
         trainLoss = train(network, opt, dataloaderMNIST)
         wandb.log({"train loss": trainLoss})
         if i % 5 == 0:
-            valLoss = validation(network, valDataloader)
+            valLoss, accCount = validation(network, valDataloader)
             wandb.log({"val loss": valLoss})
             if valLoss < modelLoss:
                 modelLoss = valLoss
                 torch.save(network.state_dict(), "./models/FCNN/best.pt")
-                print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} time:{time.time() - tE}s SAVED!")
+                print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s SAVED!")
                 continue
-            print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} time:{time.time() - tE}s")
+            print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s")
             continue
         print(f"epoch:{i}  trainLoss:{trainLoss}  time:{time.time() - tE}s")

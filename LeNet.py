@@ -4,9 +4,10 @@ from torch.nn import functional as F
 import torch.optim as optim
 from torch.utils.data import DataLoader
 import torchvision
-
 import wandb
 import time
+
+from mnistRead import calAccuracy
 
 EPOCH = 200
 LR = 0.001
@@ -44,7 +45,7 @@ class LeNet(nn.Module):
         x = self.Conv3(x)
         x = x.view(-1, 512)
         x = self.FC(x)
-        # x = F.log_softmax(x, dim=1)
+        x = F.log_softmax(x, dim=1)
         return x
 
 
@@ -55,7 +56,8 @@ def train(net, optimizer, dataloader):
         input, label = input.cuda(), label.cuda()
         optimizer.zero_grad()
         output = net(input)
-        loss = F.cross_entropy(output, label)
+        # loss = F.cross_entropy(output, label)
+        loss = F.nll_loss(output, label)
         losses.append(round(loss.item(), 5))
         loss.backward()
         optimizer.step()
@@ -71,17 +73,10 @@ def validation(net, dataloader):
             input, label = input.cuda(), label.cuda()
             output = net(input)
             accNum += calAccuracy(label, output)
-            loss = F.cross_entropy(output, label)
+            # loss = F.cross_entropy(output, label)
+            loss = F.nll_loss(output, label)
             losses.append(round(loss.item(), 5))
         return sum(losses) / len(losses), accNum
-
-
-def calAccuracy(label, output):
-    num = 0
-    for pred, lbl in zip(output, label):
-        if torch.argmax(pred) == lbl:
-            num += 1
-    return num
 
 
 if __name__ == "__main__":
@@ -102,11 +97,12 @@ if __name__ == "__main__":
         wandb.log({"loss": trainLoss})
         if i % 5 == 0:
             valLoss, accCount = validation(network, valDataloader)
-            wandb.log({"val loss": valLoss, "accuracy": accCount/10000})
+            wandb.log({"val loss": valLoss, "accuracy": accCount / 10000})
             if valLoss < modelLoss:
                 modelLoss = valLoss
                 torch.save(network.state_dict(), "./models/LeNet/best.pt")
-                print(f"epoch:{i} trainLoss:{trainLoss} valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s SAVED!")
+                print(
+                    f"epoch:{i} trainLoss:{trainLoss} valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s SAVED!")
                 continue
             print(f"epoch:{i}  trainLoss:{trainLoss}  valLoss:{valLoss} acc:{accCount} time:{time.time() - tE}s")
             continue
