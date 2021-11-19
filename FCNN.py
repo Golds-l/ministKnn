@@ -19,23 +19,15 @@ class FCNN(nn.Module):
     def __init__(self):
         super(FCNN, self).__init__()
         self.FC1 = nn.Sequential(
-            nn.Linear(28 * 28 * 1, 256),
+            nn.Linear(28 * 28 * 1, 512),
             nn.ReLU()
         )
         self.FC2 = nn.Sequential(
-            nn.Linear(256, 128),
+            nn.Linear(512, 128),
             nn.ReLU()
         )
         self.FC3 = nn.Sequential(
-            nn.Linear(128, 64),
-            nn.ReLU()
-        )
-        self.FC4 = nn.Sequential(
-            nn.Linear(64, 32),
-            nn.ReLU()
-        )
-        self.FC5 = nn.Sequential(
-            nn.Linear(32, 10),
+            nn.Linear(128, 10),
             nn.ReLU()
         )
 
@@ -44,9 +36,6 @@ class FCNN(nn.Module):
         x = self.FC1(x)
         x = self.FC2(x)
         x = self.FC3(x)
-        x = self.FC4(x)
-        x = self.FC5(x)
-        x = F.softmax(x, dim=1)
         return x
 
 
@@ -86,7 +75,7 @@ if __name__ == "__main__":
     datasetMNIST = torchvision.datasets.MNIST(root="./mnistData", train=True, download=True, transform=transforms)
     dataloaderMNIST = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
     valDataset = torchvision.datasets.MNIST(root="./mnistData", train=False, download=True, transform=transforms)
-    valDataloader = DataLoader(datasetMNIST, shuffle=True, batch_size=BATCH_SIZE)
+    valDataloader = DataLoader(valDataset, shuffle=True, batch_size=BATCH_SIZE)
     network = FCNN().to(device)
     opt = optim.SGD(network.parameters(), lr=LR)
     for i in range(EPOCH):
