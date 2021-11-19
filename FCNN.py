@@ -85,7 +85,7 @@ if __name__ == "__main__":
         wandb.log({"train loss": trainLoss})
         if i % 5 == 0:
             valLoss, accCount = validation(network, valDataloader)
-            wandb.log({"val loss": valLoss})
+            wandb.log({"val loss": valLoss, "accuracy": accCount / 10000})
             if valLoss < modelLoss:
                 modelLoss = valLoss
                 torch.save(network.state_dict(), "./models/FCNN/best.pt")
